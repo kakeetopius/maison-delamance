@@ -1,0 +1,14 @@
+# Uptime Kuma: monitoring + public status page for status.piuskl.me
+# Bound to localhost only; Apache is the only way in (HTTPS, port 443).
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+
+volumes:
+  uptime-kuma-data:
