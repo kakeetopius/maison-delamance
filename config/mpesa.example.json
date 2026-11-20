@@ -1,0 +1,10 @@
+{
+    "env": "sandbox",
+    "consumer_key": "FROM_YOUR_DARAJA_APP",
+    "consumer_secret": "FROM_YOUR_DARAJA_APP",
+    "shortcode": "174379",
+    "passkey": "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
+    "transaction_type": "CustomerPayBillOnline",
+    "callback_url": "https://shop.piuskl.me/index.php/payment/callback",
+    "callback_token": "REPLACE_WITH_OUTPUT_OF__openssl_rand_-hex_24"
+}

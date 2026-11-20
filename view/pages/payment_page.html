@@ -113,11 +113,13 @@
       <div class="double">
         <div class="field-group">
           <label for="phone">Phone Number *</label>
-          <input type="tel" id="phone" placeholder="+254..." required />
+          <input type="tel" id="phone" placeholder="0712 345 678" required
+                 pattern="\s*(\+?254|0)?\s*[17](\s*\d){8}\s*"
+                 title="Safaricom number, e.g. 0712345678 or +254712345678" />
         </div>
         <div class="field-group">
           <label for="altPhone">Email</label>
-          <input type="text" id="email" placeholder="example@gmail.com" required />
+          <input type="email" id="email" placeholder="example@gmail.com" required />
         </div>
       </div>
 

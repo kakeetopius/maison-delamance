@@ -28,6 +28,14 @@ class DBCon {
         $this->dbcon->close();
     }
 
+    function insertId(): int {
+        return (int) $this->dbcon->insert_id;
+    }
+
+    function affectedRows(): int {
+        return (int) $this->dbcon->affected_rows;
+    }
+
     function prepareStatement($query): mysqli_stmt {
         return $this->dbcon->prepare($query);
     }

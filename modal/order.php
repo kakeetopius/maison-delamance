@@ -30,6 +30,20 @@
             
         }
         
+        /** Inserts a new pending order and returns it (unlike createOrder, which returns the user's first order). */
+        public static function createPending($userid) {
+            $status = "pending";
+            $db = new DBCon();
+            $query = $db->prepareStatement("INSERT INTO orders (user_id, status) VALUES (?, ?)");
+            $query->bind_param("is", $userid, $status);
+
+            if ($db->execute_query($query) == false) {
+                return null;
+            }
+
+            return new Order($db->insertId(), $userid, $status);
+        }
+
         public static function getUserOrder($userid) {
             $db = new DBCon();
             $query =  "SELECT * FROM orders WHERE user_id = ?";

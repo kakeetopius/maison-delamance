@@ -93,6 +93,10 @@ async function confirmOrder() {
 	return;
     }
 
+    const method = document.querySelector('input[name="payment"]:checked')?.value;
+    if (method === 'mpesa') {
+	return payWithMpesa();
+    }
 
     loading.style.display = 'block';
     result.style.display = 'none';
@@ -113,4 +117,76 @@ async function confirmOrder() {
     }
     });
 
+}
+
+// --- M-Pesa STK Push -------------------------------------------------------
+
+function showStatus(message, busy) {
+    loading.textContent = message;
+    loading.style.display = busy ? 'block' : 'none';
+    result.textContent = busy ? '' : message;
+    result.style.display = busy ? 'none' : 'block';
+}
+
+async function payWithMpesa() {
+    const phone = document.getElementById('phone').value.trim();
+    submitBtn.disabled = true;
+    showStatus("Sending payment request to your phone...", true);
+
+    let data;
+    try {
+	const resp = await fetch("/index.php/payment/stkpush", {
+	    method: "POST",
+	    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+	    body: JSON.stringify({ phone }),
+	});
+	data = await resp.json();
+    } catch (e) {
+	console.error("stkpush:", e);
+	data = { success: false, detail: "Network error. Check your connection and try again." };
+    }
+
+    if (!data.success) {
+	showStatus("❌ " + (data.detail || "Could not start M-Pesa payment."), false);
+	submitBtn.disabled = false;
+	return;
+    }
+
+    showStatus("📲 " + data.message + " Waiting for confirmation...", true);
+    pollPayment(data.checkout_request_id);
+}
+
+// Polls every 3s for up to 2 minutes. The server falls back to asking
+// Safaricom directly if their callback is slow.
+async function pollPayment(checkoutId, attempt = 0) {
+    if (attempt >= 40) {
+	showStatus("⌛ We haven't received confirmation yet. If you paid, your order will update shortly.", false);
+	submitBtn.disabled = false;
+	return;
+    }
+
+    try {
+	const resp = await fetch("/index.php/payment/status/" + encodeURIComponent(checkoutId));
+	const data = await resp.json();
+
+	if (data.success && data.status === 'success') {
+	    showStatus(`✅ Payment received (M-Pesa ref ${data.receipt || ''}). Order #${data.order_no} confirmed!`, false);
+	    setTimeout(() => { window.location.href = "/"; }, 4000);
+	    return;
+	}
+	if (data.success && data.status === 'cancelled') {
+	    showStatus("❌ You cancelled the M-Pesa prompt. Try again when ready.", false);
+	    submitBtn.disabled = false;
+	    return;
+	}
+	if (data.success && data.status === 'failed') {
+	    showStatus("❌ Payment failed: " + (data.detail || "please try again."), false);
+	    submitBtn.disabled = false;
+	    return;
+	}
+    } catch (e) {
+	console.error("payment status:", e);
+    }
+
+    setTimeout(() => pollPayment(checkoutId, attempt + 1), 3000);
 }

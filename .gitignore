@@ -1,1 +1,4 @@
 composer.json
+
+# Real M-Pesa credentials (copy config/mpesa.example.json)
+config/mpesa.json

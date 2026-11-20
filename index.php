@@ -81,6 +81,26 @@ else if ($route === 'cart') {
             exit;
     }
 }
+else if ($route === 'payment') {
+    $rawData = file_get_contents("php://input");
+    $data = json_decode($rawData, true) ?? [];
+    require_once("control/Payment_Controller.php");
+    header("Content-Type: application/json");
+    $method = $_SERVER['REQUEST_METHOD'];
 
+    switch($function) {
+        case 'stkpush':
+            if ($method !== 'POST') { http_response_code(405); exit; }
+            echo PaymentControl::stkPush($data['phone'] ?? '');
+            exit;
+        case 'status':
+            echo PaymentControl::status($segments[3] ?? '');
+            exit;
+        case 'callback':
+            if ($method !== 'POST') { http_response_code(405); exit; }
+            echo PaymentControl::callback($segments[3] ?? '', $rawData);
+            exit;
+    }
+}
 
 ?>

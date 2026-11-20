@@ -151,6 +151,34 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES (21,'Pius','Kakeeto','pius@gmail.com','$2y$10$4Bmwx2XL3NJW2m0SwkH9muav0UMWu4RFBj29uF.i7IHBg73aZITEC'),(22,'John','Doe','johndoe@gmail.com','$2y$10$U3PIRFKVZt9uIa.iZ.WU8.jHUg3HaT1Wk/boxmW6H9p.NzA2oJXTG'),(23,'James','Norris','norj@gmail.com','$2y$10$Y3qJAmk7EHW4DiuTlPRXKehk16BZfhZXD3n8J4HJhy4q7q08KuSG6');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
+--
+-- Table structure for table `payment` (M-Pesa STK Push)
+--
+
+CREATE TABLE IF NOT EXISTS `payment` (
+  `payment_id` int NOT NULL AUTO_INCREMENT,
+  `order_no` int DEFAULT NULL,
+  `user_id` int NOT NULL,
+  `merchant_request_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
+  `checkout_request_id` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
+  `phone` varchar(12) COLLATE utf8mb4_general_ci NOT NULL,
+  `amount` int NOT NULL,
+  `status` enum('pending','success','failed','cancelled') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
+  `result_code` int DEFAULT NULL,
+  `result_desc` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `mpesa_receipt` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `callback_payload` text COLLATE utf8mb4_general_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`payment_id`),
+  UNIQUE KEY `checkout_request_id` (`checkout_request_id`),
+  UNIQUE KEY `mpesa_receipt` (`mpesa_receipt`),
+  KEY `order_no` (`order_no`),
+  KEY `user_status` (`user_id`, `status`),
+  CONSTRAINT `payment_order_fk` FOREIGN KEY (`order_no`) REFERENCES `orders` (`order_no`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `payment_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
